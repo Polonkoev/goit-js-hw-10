@@ -9,8 +9,6 @@ const divEl = document.querySelector('.country-info');
 const DEBOUNCE_DELAY = 300;
 
 function inputHandler(name) {
- 
-
   fetch(
     `https://restcountries.com/v3.1/name/${name}?fields=name,capital,population,flags,languages`
   )
@@ -21,31 +19,33 @@ function inputHandler(name) {
       return response.json();
     })
     .then(data => {
-      console.log(data);
+     
       if (data.length === 1) {
-        
-        list.innerHTML = '';
-        renderMarkupUnique(data);
-        
-      } else if (data.length >= 2 && data.length <= 10) {
-        
+          list.innerHTML = '';
+          renderMarkupUnique(data);}
+
+       else if (data.length >= 2 && data.length <= 10) {
+         
+          divEl.innerHTML = '';
         renderMarkup(data);
-        divEl.innerHTML = '';
-      } else {
+        }
+        
+
+      
+      
+      else {
         list.innerHTML = '';
-        divEl.innerHTML = ''
+        divEl.innerHTML = '';
         Notify.info(
           'Too many matches found. Please enter a more specific name.'
         );
       }
     })
 
-    .catch(error => {
-      Notify.failure('Oops, there is no country with that name');
+    .catch(() => {
       divEl.innerHTML = '';
       list.innerHTML = '';
-
-      console.log(error);
+      Notify.failure('Oops, there is no country with that name');
     });
 }
 
@@ -56,7 +56,7 @@ function renderMarkup(data) {
   data.map(item =>
     list.insertAdjacentHTML(
       'afterbegin',
-      `<li><p>
+      `<li style="cursor: pointer";><p>
   <img width="20px" height="10px" src="${item.flags.svg}">
   ${item.name.common}<p/>`
     )
@@ -64,14 +64,21 @@ function renderMarkup(data) {
 }
 
 function renderMarkupUnique(data) {
-  divEl.innerHTML = ""
+  divEl.innerHTML = '';
   data.map(item =>
     divEl.insertAdjacentHTML(
       'afterbegin',
-      ` <p  style=" font-size: 40px;
+      `<p style=" font-size: 40px;
 font-weight: bold;">
-<img width="60px" height="40px" src="${item.flags.svg}">
-${item.name.common}<p/>
+
+<a style="text-decoration: none; color: inherit" href="https://en.wikipedia.org/wiki/${
+        item.name.common
+      }" target="_blank" rel="noreferrer noopener"><img width="60px" height="40px" src="${
+        item.flags.svg
+      }"> ${item.name.common}</a>
+
+</p>
+
 <p><span style="font-weight: bold">Capital:</span> ${item.capital}</p>
 <p><span style="font-weight: bold">Population:</span> ${item.population}</p>
 <p><span style="font-weight: bold">Languages:</span> ${Object.values(
@@ -79,17 +86,23 @@ ${item.name.common}<p/>
       )}</p>`
     )
   );
-  
 }
 
 inputEl.addEventListener(
   'input',
   debounce(event => {
-  if(event.target.value !== ''){
+    if (event.target.value !== '') {
+      const inputName = event.target.value.trim();
+
+      inputHandler(inputName);
+    }
     divEl.innerHTML = '';
-      list.innerHTML = '';
-inputHandler(event.target.value)}
+    list.innerHTML = '';
   }, DEBOUNCE_DELAY)
 );
 
+list.addEventListener('click', listEl);
 
+function listEl(event) {
+  inputHandler((inputEl.value = event.target.innerText.trim()));
+}
