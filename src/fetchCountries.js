@@ -1,10 +1,17 @@
 
 
 export function fetchCountries(name) {
-  return new Promise((resolve, reject) => {
-    resolve(name);
-    reject(error)
-  })
+
+  const searchParams = "name,capital,population,flags,languages"
+ 
+  return fetch(`https://restcountries.com/v3.1/name/${name}?fields=${searchParams}`)
+
+  .then(response => {
+          if (!response.ok) {
+            throw new Error();
+          }
+          return response.json();
+        })
 }
 
 
